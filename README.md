@@ -18,7 +18,40 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### The Easy Way
+
+```ruby
+data = [{"user" => "paul", "repos" => 42, "pull_requests" => 17},
+        {"user" => "pete", "repos" => 12, "pull_requests" => 11}]
+
+puts TablePrinter.new(data)
+```
+
+```
+ user | repos | pull_requests
+------+-------+---------------
+ paul |    42 |            17
+ pete |    12 |            11
+```
+
+### The Advanced Way
+
+```ruby
+table = TablePrinter.new(data) do
+  column :user, format: lambda { |name| ActiveSupport::Inflector.titleize(name) }
+  column :repos, :pull_requests, format: lambda { |count| "%0.1f" % count }
+end
+
+puts table
+```
+
+```
+ User | Repos | Pull Requests
+------+-------+---------------
+ paul |  42.0 |          17.0
+ pete |  12.0 |          11.0
+
+```
 
 ## Contributing
 
