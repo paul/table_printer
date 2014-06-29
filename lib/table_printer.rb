@@ -83,12 +83,12 @@ module TablePrinter
         [l, "-" * width, r].join
       end
 
-      def formated_values
-        @formated_values ||= @values.map { |v| format(v) }
+      def formatted_values
+        @formatted_values ||= @values.map { |v| format(v) }
       end
 
       def justified_values
-        @justified_values ||= formated_values.map { |v| v.send(justification, width) }
+        @justified_values ||= formatted_values.map { |v| v.send(justification, width) }
       end
 
       def title
@@ -99,18 +99,21 @@ module TablePrinter
 
       ### FIXME: values is expecting to know the width, err: stack level too deep
       def width
-        @width ||= [title, formated_values].flatten.map(&:length).max
+        @width ||= [title, formatted_values].flatten.map(&:length).max
       end
 
       def numeric?
-        false
-        #@values.all? { |v| v.is_a?(Numeric) }
+        @values.all? { |v| v.is_a?(Numeric) }
       end
 
       def format(value)
         case options[:format]
-          when Proc   then options[:format].call(value)
-          when String then (options[:format] % value)
+          when Proc      then options[:format].call(value)
+          when String    then (options[:format] % value)
+          when :percent  then "%0.1f%%" % (value * 100)
+          when :bytes    then format_bytes(value)
+          when :time     then format_time(value)
+          when :duration then format_duration(value)
           else value.to_s
         end
       end
@@ -123,6 +126,37 @@ module TablePrinter
           else (numeric? ? :rjust : :ljust)
         end
       end
+
+      IEC = %w[KiB MiB GiB TiB PiB EiB ZiB YiB]
+      def format_bytes(value, level = 0)
+        format = "B"
+        iec = IEC.dup
+        while value > 512 and iec.any?
+          value /= 1024.0
+          format = iec.shift
+        end
+        value = value.round(2) if value.is_a?(Float)
+        "#{value} #{format}"
+      end
+
+      DEFAULT_TIME_FORMAT="%FT%TZ"
+      def format_time(time)
+        time = Time.at(time) unless time.respond_to?(:strftime)
+        time.utc.strftime(DEFAULT_TIME_FORMAT)
+      end
+
+      def format_duration(seconds)
+        minutes, seconds = seconds.divmod(60)
+        hours, minutes = minutes.divmod(60)
+        out = []
+        out << hours if hours > 0
+        out << minutes if hours > 0 or minutes > 0
+        out << seconds
+        out.map { |v| "%02d" % v }.join(":")
+      end
+
+
+
     end
 
   end

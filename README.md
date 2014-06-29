@@ -20,6 +20,10 @@ Or install it yourself as:
 
 ### The Easy Way
 
+Just pass in an array of arrays or hashes (symbol or string keys). The keys will become the column names, and any Numeric columns will be right-justified.
+
+#### Example
+
 ```ruby
 data = [{"user" => "paul", "repos" => 42, "pull_requests" => 17},
         {"user" => "pete", "repos" => 12, "pull_requests" => 11}]
@@ -36,10 +40,23 @@ puts TablePrinter.new(data)
 
 ### The Advanced Way
 
+You may pass in a configuration block that will allow you to specify the order that columns will be displayed, as well as change the format and justification.
+
+#### Column options
+
+ * `:format`: May be a String, Symbol or Proc:
+   * String: will be used as a `printf`-style formatting string.
+   * Symbol: can be `:percent`, `:bytes`, or `:time`
+   * Proc: will be called with the value as an argument
+ * `:justify`: One of `"left"`, `"right"` or `"center"`
+
+
+#### Example
+
 ```ruby
 table = TablePrinter.new(data) do
   column :user, format: lambda { |name| ActiveSupport::Inflector.titleize(name) }
-  column :repos, :pull_requests, format: lambda { |count| "%0.1f" % count }
+  column :repos, :pull_requests, format: "%0.1f"
 end
 
 puts table
