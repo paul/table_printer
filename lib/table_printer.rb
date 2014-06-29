@@ -3,7 +3,7 @@ require "table_printer/version"
 module TablePrinter
 
   def print_table(data, &config)
-    Table.new(&config).render(data)
+    puts Table.new(&config).render(data)
   end
 
   class Table
@@ -12,11 +12,11 @@ module TablePrinter
     def initialize(data = [], &block)
       @data = data
       @columns = []
-      instance_eval(block) if block_given?
+      instance_eval(&block) if block_given?
     end
 
     def column(*names)
-      options = names.extract_options!
+      options = names.last.is_a?(Hash) ? names.pop : {}
       names.each do |name|
         columns << Column.new(name, options)
       end
@@ -46,12 +46,12 @@ module TablePrinter
 
       str = ""
       if columns.any? { |col| col.has_header? }
-        str << columns.map { |col| col.header }.join("|") << "\n"
+        str << " " << columns.map { |col| col.header }.join(" | ") << "\n"
         str << columns.map { |col| col.separator }.join("|") << "\n"
       end
 
       data.each.with_index do |row, i|
-        str << columns.map { |col| col.justified_values[i] }.join("|") << "\n"
+        str << " " << columns.map { |col| col.justified_values[i] }.join(" | ") << "\n"
       end
 
       str << "\n"
@@ -92,7 +92,7 @@ module TablePrinter
       end
 
       def title
-        name.to_s
+        options[:title] || name.to_s
       end
 
       protected
