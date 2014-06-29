@@ -14,7 +14,7 @@ data = [
   }
 ]
 
-print_table(data) do
+puts print_table(data) do
   column :user, :name, :repos
   column :signed_up_at, title: "Signed up"
   column :commit_rate, format: "%0.4f"

@@ -3,7 +3,7 @@ require "table_printer/version"
 module TablePrinter
 
   def print_table(data, &config)
-    puts Table.new(&config).render(data)
+    Table.new(&config).render(data)
   end
 
   class Table
