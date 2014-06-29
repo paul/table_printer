@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = TablePrinter::VERSION
   spec.authors       = ["Paul Sadauskas"]
   spec.email         = ["psadauskas@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{A simple ASCII table printer}
+  spec.description   = %q{Prints a nice ACSII table for your data, with smart defaults about numbers and times}
+  spec.homepage      = "https://github.com/paul/table_printer"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
