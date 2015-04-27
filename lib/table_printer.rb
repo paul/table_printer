@@ -3,7 +3,7 @@ require "table_printer/version"
 module TablePrinter
 
   def print_table(data, &config)
-    Table.new(&config).render(data)
+    Table.new(data, &config).render
   end
 
   class Table
@@ -13,6 +13,8 @@ module TablePrinter
       @data = data
       @columns = []
       instance_eval(&block) if block_given?
+      generate_default_columns!
+      load_column_values!
     end
 
     def column(*names)
@@ -22,45 +24,74 @@ module TablePrinter
       end
     end
 
-    def render(data = @data)
-      if columns.empty?
-        r = data.first
-        if r.respond_to? :keys
-          r.keys.each { |name| columns << Column.new(name) }
-        else
-          r.size.times { columns << Column.new(nil) }
-        end
+    def render
+      "".tap do |output|
+        output << render_header
+        output << render_body
+        output << "\n"
       end
-
-      data.each do |row|
-        if row.respond_to? :keys
-          row.each do |name, value|
-            column = columns.detect { |c| c.name == name }
-            column.values << value if column
-          end
-        else
-          row.each.with_index do |value, i|
-            columns[i].values << value
-          end
-        end
-      end
-
-      str = ""
-      if columns.any? { |col| col.has_header? }
-        str << " " << columns.map { |col| col.header }.join(" | ") << "\n"
-        str << columns.map { |col| col.separator }.join("|") << "\n"
-      end
-
-      data.each.with_index do |row, i|
-        str << " " << columns.map { |col| col.justified_values[i] }.join(" | ") << "\n"
-      end
-
-      str << "\n"
-      str
     end
 
     def to_s
       render
+    end
+
+    private
+
+    def generate_default_columns!
+      return unless columns.empty?
+      if data_is_hashes?
+        data.first.keys.each { |name| columns << Column.new(name) }
+      else
+        data.first.size.times { columns << Column.new(nil) }
+      end
+    end
+
+    def load_column_values!
+      if data_is_hashes?
+        load_column_values_from_hash
+      else
+        load_column_values_from_array
+      end
+    end
+
+    def load_column_values_from_hash
+      data.each do |row|
+        row.each do |name, value|
+          column = columns.detect { |c| c.name == name }
+          column.values << value if column
+        end
+      end
+    end
+
+    def load_column_values_from_array
+      data.each do |row|
+        row.each.with_index do |value, i|
+          columns[i].values << value
+        end
+      end
+    end
+
+    def render_header
+      "".tap do |str|
+        if columns.any? { |col| col.has_header? }
+          str << " " << columns.map { |col| col.header }.join(" | ") << "\n"
+          str << columns.map { |col| col.separator }.join("|") << "\n"
+        end
+      end
+    end
+
+    def render_body
+      "".tap do |str|
+        data.each.with_index do |row, i|
+          str << " " << columns.map { |col| col.justified_values[i] }.join(" | ") << "\n"
+        end
+      end
+    end
+
+    def data_is_hashes?
+      return @data_is_hashes if defined? @data_is_hashes
+      @data_is_hashes = !data.empty? && data.first.respond_to?(:keys)
     end
 
     class Column
