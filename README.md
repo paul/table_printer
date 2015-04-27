@@ -1,7 +1,5 @@
 # TablePrinter
 
-TODO: Write a gem description
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -25,10 +23,12 @@ Just pass in an array of arrays or hashes (symbol or string keys). The keys will
 #### Example
 
 ```ruby
+include TablePrinter
+
 data = [{"user" => "paul", "repos" => 42, "pull_requests" => 17},
         {"user" => "pete", "repos" => 12, "pull_requests" => 11}]
 
-puts TablePrinter.new(data)
+puts print_table(data)
 ```
 
 ```
@@ -42,6 +42,8 @@ puts TablePrinter.new(data)
 
 You may pass in a configuration block that will allow you to specify the order that columns will be displayed, as well as change the format and justification.
 
+You also do not need to include the `TablePrinter` module, you can use the class directly.
+
 #### Column options
 
  * `:format`: May be a String, Symbol or Proc:
@@ -54,7 +56,7 @@ You may pass in a configuration block that will allow you to specify the order t
 #### Example
 
 ```ruby
-table = TablePrinter.new(data) do
+table = TablePrinter::Table.new(data) do
   column :user, format: lambda { |name| ActiveSupport::Inflector.titleize(name) }
   column :repos, :pull_requests, format: "%0.1f"
 end
@@ -69,6 +71,19 @@ puts table
  pete |  12.0 |          11.0
 
 ```
+
+See the [examples folder](https://github.com/paul/table_printer/tree/master/examples) for more.
+
+**Note** There's a common gotcha if you try to print and config the table in one line. Due to [ruby precedence rules with blocks](http://blog.plataformatec.com.br/2014/07/ruby-blocks-precedence/), you'll need to use braces instead of `do...end`. For example:
+
+```ruby
+puts print_table(data) {
+  column :foo, :bar
+}
+```
+
+Using `do...end` here **will not work** because the block gets passed to `puts` instead of `print_table`.
+
 
 ## Contributing
 

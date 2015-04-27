@@ -35,7 +35,8 @@ module TablePrinter
       data.each do |row|
         if row.respond_to? :keys
           row.each do |name, value|
-            columns.detect { |col| col.name == name }.values << value
+            column = columns.detect { |c| c.name == name }
+            column.values << value if column
           end
         else
           row.each.with_index do |value, i|
@@ -56,6 +57,10 @@ module TablePrinter
 
       str << "\n"
       str
+    end
+
+    def to_s
+      render
     end
 
     class Column
