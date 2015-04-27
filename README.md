@@ -1,6 +1,6 @@
 # TablePrinter
 
-[![Circle CI](https://circleci.com/gh/paul/table_printer.svg?style=svg)](https://circleci.com/gh/paul/table_printer)[!CodeClimate](https://d3s6mut3hikguw.cloudfront.net/github/paul/table_printer/badges/gpa.svg)
+[![Circle CI](https://circleci.com/gh/paul/table_printer.svg?style=svg)](https://circleci.com/gh/paul/table_printer)[![Code Climate](https://codeclimate.com/github/paul/table_printer/badges/gpa.svg)](https://codeclimate.com/github/paul/table_printer)
 
 ## Installation
 
